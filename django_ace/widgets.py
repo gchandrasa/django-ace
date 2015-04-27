@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 class AceWidget(forms.Textarea):
     def __init__(self, mode=None, theme=None, wordwrap=False, width="500px",
                  height="300px", minlines=None, maxlines=None,
-                 showprintmargin=True, *args, **kwargs):
+                 showprintmargin=True, show_gutter=None, *args, **kwargs):
         self.mode = mode
         self.theme = theme
         self.wordwrap = wordwrap
@@ -19,6 +19,7 @@ class AceWidget(forms.Textarea):
         self.minlines = minlines
         self.maxlines = maxlines
         self.showprintmargin = showprintmargin
+        self.attrs_show_gutter = show_gutter
         super(AceWidget, self).__init__(*args, **kwargs)
 
     @property
@@ -53,14 +54,14 @@ class AceWidget(forms.Textarea):
             ace_attrs["data-minlines"] = str(self.minlines)
         if self.maxlines:
             ace_attrs["data-maxlines"] = str(self.maxlines)
+        ace_attrs["data-showgutter"] = "true" if self.attrs_show_gutter else "false"
         ace_attrs["data-showprintmargin"] = "true" if self.showprintmargin else "false"
 
         textarea = super(AceWidget, self).render(name, value, attrs)
 
-
         html = '<div%s><div></div></div>%s' % (flatatt(ace_attrs), textarea)
 
         # add toolbar
-        html = '<div class="django-ace-editor"><div style="width: %s" class="django-ace-toolbar"><a href="./" class="django-ace-max_min"></a></div>%s</div>' % (self.width, html)
+        html = '<div class="django-ace-editor">%s</div>' % html
 
         return mark_safe(html)
